@@ -1,10 +1,13 @@
-# import pymysql
+# import pymysql, sys
+# # print(sys.path)
 #
 # class ADDmysql(object):
-#     def __init__(self, **option):
+#     def __init__(self, option):
 #         self.option = option
+#
 #     def __enter__(self):
-#         self.con = pymysql.connect(self.option)
+#
+#         self.con = pymysql.connect(**self.option)
 #         self.cursor = self.con.cursor()
 #
 #         return self.cursor
@@ -15,7 +18,21 @@
 #
 # conf = {"host": "192.168.43.185", "port": 3306, "user": "itheima_it", "password": "chuanzhi", "database":"meiduo"}
 #
-# with ADDmysql(**conf) as mysqlsd:
-#     executes = "show tables;"
-#     mysqlsd.execute(executes)
-#
+# with ADDmysql(conf) as mysqlsd:
+#     executes = "select * from django_migrations;"
+#     result = mysqlsd.execute(executes)
+#     print(result)
+
+# a = False
+# b = 0
+# c = 21
+# f = a if b else c
+# print(f)
+
+a = {
+        "begin": "a",
+        "end": "b"
+    }
+
+inputs = "a"
+print([i for i,j in a.items() if j==inputs])

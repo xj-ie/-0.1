@@ -10,10 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
-import os
+import os, sys
+# from meiduo_mall.meiduo_mall.apps import *
+
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,6 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users',
+    'contents',
+    'verifications'
 ]
 
 MIDDLEWARE = [
@@ -77,7 +85,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            'environment': 'meiduo_mall.utils.jinja2_environment'
+            'environment': 'meiduo_mall.utils.jinja2_env.jinja2_environment'
         },
     },
 ]
@@ -91,7 +99,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        "HOST": "192.168.43.185",
+        "HOST": "127.0.0.1",
         'PORT': 3306,
         "USER": "itheima_it",
         "PASSWORD": "chuanzhi",
@@ -104,7 +112,7 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/0",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PASSWORD": "mysecret"
+
         }
     },
     "session": {
@@ -112,9 +120,17 @@ CACHES = {
         "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PASSWORD": "mysecret"
+
         }
-    }
+    },
+    "identified": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+
+        }
+    },
 }
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
@@ -156,6 +172,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 LOGGING = {
     'version': 1,
@@ -197,3 +214,5 @@ LOGGING = {
         },
     }
 }
+AUTH_USER_MODEL = "users.User"
+# AUTH_USER_MODEL = "star_link.user_info"
