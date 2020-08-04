@@ -28,11 +28,25 @@
 # c = 21
 # f = a if b else c
 # print(f)
+#
+# a = {
+#         "begin": "a",
+#         "end": "b"
+#     }
+#
+# inputs = "a"
+# print([i for i,j in a.items() if j==inputs])
 
-a = {
-        "begin": "a",
-        "end": "b"
-    }
-
-inputs = "a"
-print([i for i,j in a.items() if j==inputs])
+a = []
+b = 0
+c = ''
+d = {}
+f = None
+s = [None]
+print(bool(a))
+print(bool(b))
+print(bool(c))
+print(bool(d))
+print(bool(f))
+if s:
+    print(s)

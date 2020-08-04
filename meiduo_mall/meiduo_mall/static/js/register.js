@@ -11,11 +11,22 @@ let vm = new Vue({
                         allow:"",
                         uuid:"",
                         img_db:"",
+                        code_message:"　验证码",
+                        msg:"",
+                        uuids:"",
+                        inte:"",
+
 
     //                    error_message
                         error_name_message:"",
                         error_pass_message:"",
                         error_phone_massage:"",
+                        error_img_message:"",
+                        error_message_msg:"",
+                        ssm_code_message:"请输入验证码",
+
+
+
     //                    v-show
                         error_name:false,
                         error_pass:false,
@@ -23,6 +34,7 @@ let vm = new Vue({
                         error_phone:false,
                         error_allow:false,
                         error_img:false,
+                        error_msg:false,
 
 
                     },
@@ -30,11 +42,81 @@ let vm = new Vue({
                             this.img_show();
                         },
                 methods:{
+                            ssm_code(){
+                                        if (this.inte == true){
+                                                            return ;
+                                                              }
+                                        this.inte=true;
+
+
+
+
+                                        let url= "/msm_codes/" + this.mobile + "?img_code=" + this.img_db +"&uuid=" + this.uuids;
+                                        if (this.mobile.length==0){
+                                                            this.check_mobile();
+
+
+                                                           }
+
+                                        axios.get(url, {responseType:"json"})
+                                        .then(response=>{
+                                                            if (response.data.code=="0"){
+                                                                                            let num=60;
+                                                                                            let t = setInterval(()=>{
+                                                                                                                    if (num ==1){
+//
+                                                                                                                                    clearInterval(t);
+                                                                                                                                    this.ssm_code_message="请输入验证码";
+                                                                                                                                    this.img_show;
+                                                                                                                                    this.inte=false;
+                                                                                                                                }
+                                                                                                                    else{
+                                                                                                                            num-= 1;
+                                                                                                                            this.ssm_code_message = num;
+                                                                                                                        }
+                                                                                                                },1000);
+
+                                                                                                }
+                                                            else{
+                                                                if (response.data.code==1){
+                                                                this.error_img_message=response.data.errmsg;
+                                                                this.error_img=true;}else{
+                                                                this.error_message_msg=response.data.errmsg;
+                                                                this.error_msg=true
+                                                                }
+
+                                                                };
+
+                                                        })
+                                        .catch(error=>{
+                                                        console.log(error)
+                                                       })
+
+                                      },
+                            check_msg(){
+                                            if (this.msg.length != 6){
+                                                                        error_msg=true;
+                                                                     }
+                                            else{
+                                                    error_msg=false;
+                                                }
+                                       },
+
+
                             img_show(){
                                         let code_img = generateUUID();
-                                        this.uuid = "/image_code/"+ code_img +"/";
+                                        this.uuid = "/image_codes/"+ code_img +"/";
+                                        this.uuids="img_"+code_img;
                                       },
                             check_img(){
+                                        if(this.img_db.length!=4){
+                                                                        this.error_img_message="img_code:NOne";
+                                                                        this.error_img=true;
+                                                                    }
+                                        else{
+                                                this.error_img=false;
+                                            }
+
                                        },
                             check_username(){
 //                            username : len{5:20} range[0-9A-Za-z_-]
@@ -134,7 +216,7 @@ let vm = new Vue({
                                             this.check_password2();
                                             this.check_mobile();
                                             this.check_allow();
-                                            if (this.error_username==true || this.error_pass==true || this.error_pass2==true || this.error_phone==true || this.error_allow==true){
+                                            if (this.error_username==true || this.error_pass==true || this.error_pass2==true || this.error_phone==true || this.error_allow==true || this.error_allow==true){
                                                                                                                                                         window.event.returnValue = false;
                                                                                                                                                     }
 //                                            else{

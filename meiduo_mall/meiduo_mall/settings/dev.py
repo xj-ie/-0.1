@@ -20,6 +20,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 print(sys.path)
 
+print(BASE_DIR)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -30,7 +32,7 @@ SECRET_KEY = 'z8nddkva069e0!f(#v)dry&357_lv37vg0z$m-#dgbuuz_6nan'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.meiduo.site']
 
 
 # Application definition
@@ -44,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'contents',
-    'verifications'
+    'verifications',
+    'oauth',
+    'areas'
 ]
 
 MIDDLEWARE = [
@@ -216,3 +220,40 @@ LOGGING = {
 }
 AUTH_USER_MODEL = "users.User"
 # AUTH_USER_MODEL = "star_link.user_info"
+LOGIN_URL = '/login/'
+# QQ登录的配置参数
+QQ_CLIENT_ID = '101518219'
+QQ_CLIENT_SECRET = '418d84ebdc7241efb79536886ae95224'
+QQ_REDIRECT_URI = 'http://www.meiduo.site:8000/oauth_callback'
+
+# # # 邮件参数
+# # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 导入邮件模块
+# # EMAIL_HOST = 'smtp.163.com' # 发邮件主机
+# # EMAIL_PORT = 25 # 发邮件端口
+# # EMAIL_HOST_USER = 'a818888888888888@163.com' # 授权的邮箱
+# # EMAIL_HOST_PASSWORD = 'WSNXGQUBFUWLSSBK' # 邮箱授权时获得的密码，非注册登录密码
+# # EMAIL_FROM = '美多商城<a818888888888888@yeah.net>' # 发件人抬头
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # 导入邮件模块
+# EMAIL_HOST = 'smtp.yeah.net' # 发邮件主机
+# EMAIL_PORT = 25 # 发邮件端口
+# EMAIL_HOST_USER = 'dailyfreshzxc@yeah.net' # 授权的邮箱
+# EMAIL_HOST_PASSWORD = 'dailyfresh123' # 邮箱授权时获得的密码，非注册登录密码
+# EMAIL_FROM = '美多商城<dailyfreshzxc@yeah.net>' # 发件人抬头
+# # os.system('celery -A celery_tasks.main worker -l info')
+
+
+# 邮箱的配置信息,这里有自己的授权的邮箱和自己的邮箱授权码,这些都是可以在网易邮箱上获取的
+# 指定邮件后端
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# 发邮件主机
+EMAIL_HOST = 'smtp.163.com'
+# 发邮件端口
+EMAIL_PORT = 25
+# 授权的邮箱
+EMAIL_HOST_USER = '17611245897@163.com'
+# 邮箱授权时获得的密码，非注册登录密码
+EMAIL_HOST_PASSWORD = 'LFUWXYJSLFFHGTCZ'
+# 发件人抬头
+EMAIL_FROM = '美多商城<17611245897@163.com>'
+# 邮箱验证链接
+EMAIL_VERIFY_URL = 'http://www.meiduo.site:8000/emails/verification/'
