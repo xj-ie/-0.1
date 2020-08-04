@@ -10,7 +10,8 @@ urlpatterns = [
     url(r'^user_center_info', views.UserInfoView.as_view(), name="info"),
     url(r'^emails/', views.EmailView.as_view(), name='email'),
     url(r'^emails/verification/', views.Emali_Verifications.as_view()),
-    url(r'^Orders', views.OrdersViews.as_view(), name="address")
+    url(r'^Orders', views.OrdersViews.as_view(), name="address"),
+    url(r'^addresses/create/$', views.AddressCreateView.as_view())
 
 
 ]

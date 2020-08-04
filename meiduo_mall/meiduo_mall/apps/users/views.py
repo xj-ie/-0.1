@@ -4,7 +4,7 @@ from django import http
 import re
 from celery_tasks.email.tasks import send_verify_email
 # import phone
-from users.models import User
+from users.models import User, Address
 from django.db import DatabaseError
 from django.contrib.auth import login, logout
 from meiduo_mall.utils.response_code import RETCODE
@@ -24,8 +24,32 @@ logging.getLogger('django')
 
 class OrdersViews(View):
     def get(self, request):
+        user_login = request.user
+        addresses = Address.objects.filter(user_id=user_login, is_deleted=False)
+        address_dict_list =[{
+                "id": address.id,
+                "title": address.title,
+                "receiver": address.receiver,
+                "province": address.province.name,
+                "city": address.city.name,
+                "district": address.district.name,
+                "place": address.place,
+                "mobile": address.mobile,
+                "tel": address.tel,
+                "email": address.email
+            } for address in addresses]
+        context = {
+            'default_address_id': user_login.default_address or '0',
+            'addresses': address_dict_list,
+        }
 
-        return render(request, "user_center_site.html")
+
+        return render(request, "user_center_site.html", context)
+
+class AddressCreateView(LoginRequireJSONdMixin, View):
+    def post(self, request):
+        pass
+
 
 class Emali_Verifications(View):
     def get(self, request):
