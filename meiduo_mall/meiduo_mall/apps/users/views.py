@@ -22,33 +22,213 @@ import logging
 
 logging.getLogger('django')
 
+class UpdateTitleAddressView(LoginRequireJSONdMixin, View):
+    def put(self,request, address_id):
+        data = json.loads(request.body.decode)
+        name = data.get("title")
+        address = request.Address.get(address_id)
+        address.title = name
+        address.save()
+        return http.JsonResponse({'code': 1, "errmsg": "salf"})
+
+
+class UpdateDestroyAddressView(LoginRequireJSONdMixin, View):
+    # def put(self, request, address_id):
+    #     data = json.loads(request.body.decode())
+    #
+    #     receiver = data.get('receiver')
+    #     province_id = data.get('province_id')
+    #     city_id = data.get('city_id')
+    #     district_id = data.get('district_id')
+    #     place = data.get('place')
+    #     mobile = data.get('mobile')
+    #     tel = data.get('tel')
+    #     email = data.get('email')
+    #     # if not all([receiver, province_id, city_id, district_id, place, mobile]):
+    #     #     return http.HttpResponseForbidden('缺少必传参数')
+    #     # if not re.match(r'^1[3-9]\d{9}$', mobile):
+    #     #     return http.HttpResponseForbidden('参数mobile有误')
+    #     # if tel:
+    #     #     if not re.match(r'^(0[0-9]{2,3}-)?([2-9][0-9]{6,7})+(-[0-9]{1,4})?$', tel):
+    #     #         return http.HttpResponseForbidden('参数tel有误')
+    #     # if email:
+    #     #     if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+    #     #         return http.HttpResponseForbidden('参数email有误')
+    #
+    #     user = request.user
+    #     address = Address.objects.filter(id=address_id, user_id=user).update(
+    #         user_id=user,
+    #         title=receiver,
+    #         receiver=receiver,
+    #         province_id=province_id,
+    #         city_id=city_id,
+    #         district_id=district_id,
+    #         place=place,
+    #         mobile=mobile,
+    #         tel=tel,
+    #         email=email,
+    #     )
+    #
+    #     response = {"code": 0, "errmsg": 'info',
+    #                 "address": {"receiver": address.receiver, "province": address.province_id, "city": address.city_id,
+    #                             "district": address.district_id, "place": address.place, "mobile": address.mobile,
+    #                             "tel": address.tel, "email": address.email}}
+    #     return http.JsonResponse(response)
+    def put(self, request, address_id):
+        # 1, 获取修改的数据
+        json_dict = json.loads(request.body.decode())
+        receiver = json_dict.get('receiver')
+        province_id = json_dict.get('province_id')
+        city_id = json_dict.get('city_id')
+        district_id = json_dict.get('district_id')
+        place = json_dict.get('place')
+        mobile = json_dict.get('mobile')
+        tel = json_dict.get('tel')
+        email = json_dict.get('email')
+
+        # 2, 判断正则,是否为空等(这里我就不写了)
+
+        # 3, 修改数据库的数据
+
+        try:
+            address = Address.objects.get(id=address_id)
+            address.user = request.user
+            address.title = receiver
+            address.receiver = receiver
+            address.province_id = province_id
+            address.city_id = city_id
+            address.district_id = district_id
+            address.place = place
+            address.mobile = mobile
+            address.tel = tel
+            address.email = email
+            address.save()
+
+        except Exception as e:
+            print(e)
+            return http.JsonResponse({'code': RETCODE.DBERR, 'errmsg': '更新地址失败'})
+
+    def delete(request,address_id):
+        try:
+            address =  request.Address.get(id=address_id)
+            address.is_deleted = True
+            address.save()
+        except Exception as e:
+            logging.error(e)
+            return http.JsonResponse({'code': 0, 'errmsg': '删除地址失败'})
+        return http.JsonResponse({'code':1 ,'errmsg': 'safe'})
+
+        # 4, 返回修改后的数据给前端
+        address = Address.objects.get(id=address_id)
+        address_dict = {
+            "id": address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        }
+
+        # 响应更新地址结果
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '更新地址成功', 'address': address_dict})
+class DefaultAddressView(View):
+    def put(self, request, address_id):
+        try:
+            address = request.Address.get(id=address_id)
+            user = request.user.default_address = address
+            user.save()
+        except Exception as e:
+            logging.error(e)
+            return http.JsonResponse({'code':0, "errmsg": 'error'})
+
+        return http.JsonResponse({'code':1, "errmsg": 'safe'})
+
 class OrdersViews(View):
     def get(self, request):
         user_login = request.user
         addresses = Address.objects.filter(user_id=user_login, is_deleted=False)
-        address_dict_list =[{
-                "id": address.id,
-                "title": address.title,
-                "receiver": address.receiver,
-                "province": address.province.name,
-                "city": address.city.name,
-                "district": address.district.name,
-                "place": address.place,
-                "mobile": address.mobile,
-                "tel": address.tel,
-                "email": address.email
-            } for address in addresses]
+        address_dict_list = [{
+            "id": address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        } for address in addresses]
         context = {
             'default_address_id': user_login.default_address or '0',
             'addresses': address_dict_list,
         }
 
-
         return render(request, "user_center_site.html", context)
 
-class AddressCreateView(LoginRequireJSONdMixin, View):
+
+class Create_Addresses(LoginRequireJSONdMixin, View):
     def post(self, request):
-        pass
+        user = request.user
+
+        # if Address.objects.filter(user_id=user).count():
+        #     return http.HttpResponseForbidden('个数超了')
+        json_dict = json.loads(request.body.decode())
+        receiver = json_dict.get('receiver')
+        province_id = json_dict.get('province_id')
+        city_id = json_dict.get('city_id')
+        district_id = json_dict.get('district_id')
+        place = json_dict.get('place')
+        mobile = json_dict.get('mobile')
+        tel = json_dict.get('tel')
+        email = json_dict.get('email')
+        # 校验参数
+        if not all([receiver, province_id, city_id, district_id, place, mobile]):
+            return http.HttpResponseForbidden('缺少必传参数')
+        # if not re.match(r'^1[3-9]\d{9}$', mobile):
+        #     return http.HttpResponseForbidden('参数mobile有误')
+        if tel:
+            if not re.match(r'^(0[0-9]{2,3}-)?([2-9][0-9]{6,7})+(-[0-9]{1,4})?$', tel):
+                return http.HttpResponseForbidden('参数tel有误')
+        if email:
+            if not re.match(r'^[a-z0-9][\w\.\-]*@[a-z0-9\-]+(\.[a-z]{2,5}){1,2}$', email):
+                return http.HttpResponseForbidden('参数email有误')
+        # 接收参数
+        try:
+            address = Address.objects.create(user=user,
+                                             title=receiver,
+                                             receiver=receiver,
+                                             province_id=province_id,
+                                             city_id=city_id,
+                                             district_id=district_id,
+                                             place=place,
+                                             mobile=mobile,
+                                             tel=tel,
+                                             email=email)
+            if not user.default_address:
+                user.default_address = address
+                user.save()
+        except Exception as e:
+            logging.error(e)
+            return http.JsonResponse({'code': 0, 'errmsg': '新增地址失败'})
+        address_dict = {
+            "id": address.id,
+            "title": address.title,
+            "receiver": address.receiver,
+            "province": address.province.name,
+            "city": address.city.name,
+            "district": address.district.name,
+            "place": address.place,
+            "mobile": address.mobile,
+            "tel": address.tel,
+            "email": address.email
+        }
+
+        return http.JsonResponse({'code': RETCODE.OK, 'errmsg': '新增地址成功', 'address': address_dict})
 
 
 class Emali_Verifications(View):
@@ -59,9 +239,10 @@ class Emali_Verifications(View):
         user = decorate_verify_email_url(token)
         if not user:
             return http.HttpResponseForbidden('404')
-        user.email_activate=True
+        user.email_activate = True
         user.save()
         return render(reverse("users:email"))
+
 
 class EmailView(LoginRequireJSONdMixin, View):
     def put(self, request):
@@ -89,18 +270,14 @@ class EmailView(LoginRequireJSONdMixin, View):
         send_verify_email.delay(email, verify_url)
         return http.JsonResponse({"code": 0, "errmsg": 'safe'})
 
+
 class UserInfoView(LoginRequiredMixin, View):
 
     def get(self, request):
-
-
-        context = {"name" : request.user.username,
-                   "phone" : request.user.mobile,
-                   "email" : request.user.email,
-                   "email_activate" : request.user.email_active}
-
-
-
+        context = {"name": request.user.username,
+                   "phone": request.user.mobile,
+                   "email": request.user.email,
+                   "email_activate": request.user.email_active}
 
         return render(request, "user_center_info.html", context=context)
 
@@ -117,12 +294,12 @@ class LogOut(View):
 class LoginView(View):
     def get(self, request):
         return render(request, "login.html")
+
     def post(self, request):
         data_i = request.POST
         usernmae = data_i.get("username")
         password = data_i.get("password")
         remembered = data_i.get("remembered")
-
 
         if not re.match(r"[a-zA-Z0-9]{5,20}", usernmae):
             return http.HttpResponseForbidden("501")
@@ -131,18 +308,18 @@ class LoginView(View):
 
         if not all([usernmae, password]):
             return http.HttpResponseForbidden("501")
-        userba =UsernameMobileBackend()
+        userba = UsernameMobileBackend()
         user = userba.authenticate(request=request, username=usernmae, password=password)
 
         if user is None:
-            return render(request,'login.html',{'account_errmsg':'123'})
+            return render(request, 'login.html', {'account_errmsg': 'KEAL'})
 
         nexts = request.GET.get("next")
         if nexts:
             response = redirect(nexts)
         else:
             response = redirect(reverse("Contents:index"))
-        response.set_cookie("username", user.username, max_age=3600*12*24)
+        response.set_cookie("username", user.username, max_age=3600 * 12 * 24)
         login(request, user)
         if remembered == "on":
             request.session.set_expiry(None)
@@ -150,6 +327,7 @@ class LoginView(View):
             request.session.set_expiry(0)
 
         return response
+
 
 class UserCountView(View):
 
@@ -159,6 +337,8 @@ class UserCountView(View):
         reault = {"code": RETCODE.OK, "errmag": "OK", "conut": conut}
 
         return http.JsonResponse(reault)
+
+
 class PhoneCountView(View):
 
     def get(self, request, phone):
@@ -167,7 +347,6 @@ class PhoneCountView(View):
         reault = {"code": RETCODE.OK, "errmag": "OK", "conut": conut}
 
         return http.JsonResponse(reault)
-
 
 
 class RegisterView(View):
@@ -200,11 +379,11 @@ class RegisterView(View):
         if is_unll[-1] != "on":
             return http.HttpResponseForbidden('506')
         if is_unll[-2] is None:
-            return render(request, "reister.html", {"error_message_msg":"不能为空"})
+            return render(request, "reister.html", {"error_message_msg": "不能为空"})
         conn_ext = get_redis_connection("identified")
-        ssm_code = conn_ext.get("+86%s"%is_unll[4])
+        ssm_code = conn_ext.get("+86%s" % is_unll[4])
         if is_unll[-2] != ssm_code:
-            return render(request, "reister.html", {"error_message_msg":"验证码有𢇞"})
+            return render(request, "reister.html", {"error_message_msg": "验证码有𢇞"})
 
 
         else:
