@@ -258,3 +258,8 @@ EMAIL_HOST_PASSWORD = 'LFUWXYJSLFFHGTCZ'
 EMAIL_FROM = '美多商城<17611245897@163.com>'
 # 邮箱验证链接
 EMAIL_VERIFY_URL = 'http://www.meiduo.site:8000/emails/verification/'
+DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fdfs.utils.FastDFSStorage'
+
+# FastDFS相关参数
+# FDFS_BASE_URL = 'http://192.168.103.158:8888/'
+FDFS_BASE_URL = 'http://image.meiduo.site:8888/'
