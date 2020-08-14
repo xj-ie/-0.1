@@ -13,7 +13,8 @@ urlpatterns = [
     url(r'^Orders', views.OrdersViews.as_view(), name="address"),
     url(r'^addresses/create/$', views.Create_Addresses.as_view()),
     url(r'^addresses/(?P<address_id>\d+)/', views.UpdateDestroyAddressView.as_view()),
-    url(r'^/addresses/(?P<address_id>\d+)/default/', views.DefaultAddressView.as_view()),
-    url(r'^/addresses/(?P<address_id>\d+)/title/', views.UpdateTitleAddressView.as_view())
+    url(r'^addresses/(?P<address_id>\d+)/default/', views.DefaultAddressView.as_view()),
+    url(r'^addresses/(?P<address_id>\d+)/title/', views.UpdateTitleAddressView.as_view()),
+    url('^browse_histories/$', views.UserBrowseHistory.as_view())
 
 ]

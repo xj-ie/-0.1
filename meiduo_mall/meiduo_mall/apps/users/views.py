@@ -4,6 +4,7 @@ from django import http
 import re
 from celery_tasks.email.tasks import send_verify_email
 # import phone
+from goods.models import SKU
 from users.models import User, Address
 from django.db import DatabaseError
 from django.contrib.auth import login, logout
@@ -14,13 +15,55 @@ from users.utils import UsernameMobileBackend
 from users.utils import generate_verify_email_url, decorate_verify_email_url
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from carts.utils import mcookie_to_redis
 from meiduo_mall.utils.views import LoginRequireJSONdMixin
 # import json
 # Create your views here.
 import logging
+# from django_redis import get_redis_connection
+# from carts.utils import mcookie_to_redis
+
+
 
 logging.getLogger('django')
+class UserBrowseHistory(LoginRequireJSONdMixin, View):
+    def post(self, requst):
+        sku_id = json.loads(requst.body.decode('utf-8')).get('sku_id')
+        try:
+            SKU.objects.get(id=sku_id)
+        except Exception as e:
+            return http.JsonResponse({'code':1, 'error':'alter'})
+        user = requst.user
+        redis_connect = get_redis_connection('history')
+        pl = redis_connect.pipeline()
+        pl.lrem('history_{}'.format(user.id), 0, sku_id)
+        pl.lpush('history_{}'.format(user.id), sku_id)
+        pl.ltrim('history_{}'.format(user.id), 0, 4)
+        pl.execute()
+        response = {'code': 0, 'error': 'info'}
+        return http.JsonResponse(response)
+
+    def get(self, request):
+        user = request.user
+        redis_connect = get_redis_connection('history')
+        sku_id = redis_connect.lrange('history_{}'.format(user.id), 0, -1)
+
+        sku_history = [SKU.objects.filter(id=sku) for sku in sku_id]
+        print(sku_history)
+        response = {
+            "code":"0",
+            "errmsg":"OK",
+            "skus":[{
+                "id": h[0].id,
+                "name":h[0].name,
+                "default_image_url":h[0].default_image.url,
+                "price":h[0].price,
+                } for h in sku_history]
+        }
+
+        return http.JsonResponse(response)
+        # range
+
 
 class UpdateTitleAddressView(LoginRequireJSONdMixin, View):
     def put(self,request, address_id):
@@ -318,13 +361,15 @@ class LoginView(View):
         if nexts:
             response = redirect(nexts)
         else:
-            response = redirect(reverse("Contents:index"))
+            response = redirect(reverse("contents:index"))
         response.set_cookie("username", user.username, max_age=3600 * 12 * 24)
         login(request, user)
         if remembered == "on":
             request.session.set_expiry(None)
         else:
             request.session.set_expiry(0)
+
+        response = mcookie_to_redis(request=request, user=user, response=response)
 
         return response
 

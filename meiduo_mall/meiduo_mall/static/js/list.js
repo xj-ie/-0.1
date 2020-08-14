@@ -2,6 +2,8 @@ let vm = new Vue({
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
+
+        // category_id: category_id,
         username: getCookie('username'),
         category_id: category_id,
         hot_skus: [],

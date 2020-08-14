@@ -113,7 +113,16 @@ class SPU(BaseModel):
 
     def __str__(self):
         return self.name
+class GoodsVisitCount(BaseModel):
+    """统计分类商品访问量模型类"""
+    category = models.ForeignKey(GoodsCategory, on_delete=models.CASCADE, verbose_name='商品分类')
+    count = models.IntegerField(verbose_name='访问量', default=0)
+    date = models.DateField(auto_now_add=True, verbose_name='统计日期')
 
+    class Meta:
+        db_table = 'tb_goods_visit'
+        verbose_name = '统计分类商品访问量'
+        verbose_name_plural = verbose_name
 
 class SKU(BaseModel):
     """商品SKU"""
@@ -128,7 +137,7 @@ class SKU(BaseModel):
     sales = models.IntegerField(default=0, verbose_name='销量')
     comments = models.IntegerField(default=0, verbose_name='评价数')
     is_launched = models.BooleanField(default=True, verbose_name='是否上架销售')
-    default_image_url = models.ImageField(max_length=200, default='', null=True, blank=True, verbose_name='默认图片')
+    default_image = models.ImageField(max_length=200, default='', null=True, blank=True, verbose_name='默认图片')
 
     class Meta:
         db_table = 'tb_sku'

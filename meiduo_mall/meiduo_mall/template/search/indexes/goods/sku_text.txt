@@ -1,0 +1,3 @@
+{{objcet.id}}
+{{objcet.name}}
+{{objcet.caption}}
