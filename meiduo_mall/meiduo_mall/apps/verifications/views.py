@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django import http
 from django.views import View
 # Create your views here.
+from goods.models import SKU
 from verifications.libs.captcha.captcha import captcha
 from django_redis import get_redis_connection
 from meiduo_mall.utils import constants
@@ -51,4 +52,11 @@ class IdentifiedIame(View):
         redis_db.setex("img_%s" % image, 400, text)
         return http.HttpResponse(img, content_type="image/jpg")
 
+
+class Test_View(View):
+    def get(self,request):
+        skus = SKU.objects.all()
+        dist_dect = [sku.__dict__ for sku in skus]
+        # context = {'contex':dist_dect}
+        return http.JsonResponse(dist_dect, safe=False)
 

@@ -20,5 +20,6 @@ urlpatterns = [
 
     url(r'^image_codes/(?P<image>[\w-]+)/', views.IdentifiedIame.as_view()),
     url(r'^msm_codes/(?P<phone>1[3-9]\d{9})/$', views.SMSCondeView.as_view()),
+    url(r'^test', views.Test_View.as_view())
 
 ]

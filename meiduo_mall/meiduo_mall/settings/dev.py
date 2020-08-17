@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'goods',
     'haystack',
     'carts',  # 购物车
-    'orders'
+    'orders',
+    'payment'
 
 ]
 
